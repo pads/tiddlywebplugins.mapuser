@@ -5,6 +5,10 @@ mapped_user value taken from the POST body.
 """
 
 
+from httpexceptor import HTTP415, HTTP400
+
+import simplejson
+
 from tiddlyweb.model.tiddler import Tiddler
 from tiddlyweb.web.util import get_route_value
 
@@ -21,8 +25,20 @@ def handle(environ, start_response):
 
     store = environ['tiddlyweb.store']
 
-    query = environ['tiddlyweb.query']
-    mapped_user = query['mapped_user'][0]
+    try:
+        content_type = environ['tiddlyweb.type']
+        length = environ['CONTENT_LENGTH']
+        if content_type != 'application/json':
+            raise HTTP415('application/json required')
+        content = environ['wsgi.input'].read(int(length))
+    except KeyError, exc:
+        raise HTTP400('Missing content-type or content-length headers: %s' % exc)
+
+    try:
+        json_dict = simplejson.loads(content)
+        mapped_user = json_dict['mapped_user']
+    except (ValueError, KeyError), exc:
+        raise HTTP400('Invalid input, %s' % exc)
 
     tiddler_title = get_route_value(environ, 'user')
     tiddler = Tiddler(tiddler_title, 'MAPUSER')
@@ -33,5 +49,5 @@ def handle(environ, start_response):
 
     store.put(tiddler)
 
-    start_response('201', [('Content-Type', 'text/html; charset=UTF-8')])
+    start_response('201 Created', [('Content-Type', 'text/html; charset=UTF-8')])
     return []
