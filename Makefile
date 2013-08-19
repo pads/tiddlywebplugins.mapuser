@@ -15,14 +15,14 @@ test:
 test_with_coverage:
 	py.test test --cov tiddlywebplugins --cov-report term-missing
 
-pep8:
-	pep8 --max-line-length=120 test tiddlywebplugins
+flake8:
+	flake8 test tiddlywebplugins
 
 install:
 	python setup.py install
 
 install_dev:
-	pip install -e .[testing,coverage,style]
+	pip install -e .[testing,coverage,code]
 
 dist:
 	python setup.py sdist

@@ -18,7 +18,7 @@ setup(
 	extras_require = {
 		'testing': ['pytest', 'httplib2', 'wsgi_intercept'],
 		'coverage': ['pytest-cov', 'python-coveralls'],
-		'style': ['pep8']
+		'code': ['flake8']
 	},
 	zip_safe = False,
 	)
